@@ -71,7 +71,7 @@ void eventHandler(){
 void piece::draw(){
 	RSGL::drawRect(r,c);
 	if (num){
-		RSGL::drawText(std::to_string(num),{r.x - ((r.length)/3.36) ,r.y + (r.width/2),r.width/3},"res/fonts/SansPosterBold.ttf",{255,255,255});
+		RSGL::drawText(std::to_string(num),{(int)(r.x - ((r.length)/3.36) ,r.y + (r.width/2),r.width/3},"res/fonts/SansPosterBold.ttf",{255,255,255});
 	}
 }
 
