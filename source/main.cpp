@@ -71,9 +71,7 @@ void eventHandler(){
 }
 
 void piece::draw(){
-	RSGL::drawRect(r,colormap.at(num));	
-	//RSGL::drawCircle({(int)( r.x+(r.length/2)),(int)(r.y + (r.width/2)), r.width/3},{255,0,0});
-	
+	RSGL::drawRect(r,colormap.at(num));		
 	if (num) RSGL::drawText(std::to_string(num),{(int)(r.x - (r.length/3.36)),(int)(r.y + (r.width/2)), r.width/3},"res/fonts/SansPosterBold.ttf",{255,255,255});
 }
 void piece::drawCir(){
