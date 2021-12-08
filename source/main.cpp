@@ -1,7 +1,7 @@
 #include "../include/RSGL/RSGL.hpp"
 #include <pthread.h>
-#define LENGTH 500
-#define WIDTH 500
+int LENGTH =  500;
+int WIDTH = 500;
 #define X 500
 #define Y 500
 #define rows 4
@@ -15,11 +15,12 @@ void sleep(float time){std::string cmd = "sleep " + std::to_string(time); system
 std::map<int, RSGL::color> colormap = {{0,{255,255,255}},{2,{252,233,79}},{4,{138,226,52}},{8,{252,175,62}},{16,{114,159,207}},{32,{173,127,168}},{64,{193,125,17}},{128,{239,41,41}},{256,{184,150,0}},
 {512,{78,154,6}},{1024,{206,92,0}},{2048,{32,71,142}}};
 
+
 void eventHandler(){
 	win.checkEvents(); bool cnew=false;
 	switch(win.event.type){
 		case RSGL::quit: running =false;
-		case RSGL::KeyReleased: 
+		/*case RSGL::KeyReleased: 
 			if (win.event.key == "Escape") running=false;
 			else if (fullBoard()){}
 			else if (win.event.key == "Up"){
@@ -65,7 +66,7 @@ void eventHandler(){
 				 board.at(x).at(y).num=2;}  break;
 				break;	
 			}}
-			else break;
+			else break;*/
 		default: break;
 	}
 }
@@ -75,16 +76,16 @@ void piece::draw(){
 	if (num) RSGL::drawText(std::to_string(num),{(int)(r.x - (r.length/3.36)),(int)(r.y + (r.width/2)), r.width/3},"res/fonts/SansPosterBold.ttf",{255,255,255});
 }
 void piece::drawCir(){
-	RSGL::drawCircle({r.length+r.x+6,r.y+6,10},{200,200,200});
-	RSGL::drawCircle({r.x+6,r.width+r.y+6,10},{200,200,200});
-	RSGL::drawCircle({r.x+6,r.y+6,10},{200,200,200});
-	RSGL::drawCircle({r.length+r.x+6,r.width+r.y+6,10},{200,200,200});
+	RSGL::drawCircle({r.x-((int)(LENGTH/230)),r.y-((int)(WIDTH/230)),(WIDTH+LENGTH)/50},{200,200,200}); // top left
+	RSGL::drawCircle({r.x+((int)(LENGTH/60))+r.length,r.y-((int)(WIDTH/230)),(WIDTH+LENGTH)/50},{200,200,200}); // top right
+	RSGL::drawCircle({r.x-((int)(LENGTH/230)),r.y+r.width+((int)(WIDTH/60)),(WIDTH+LENGTH)/50},{200,200,200}); //bottom left
+	RSGL::drawCircle({r.x+r.length+((int)(LENGTH/60)),r.y+r.width+((int)(WIDTH/60)),(WIDTH+LENGTH)/50},{200,200,200}); //bottom right*/
 }
 
 int main(){
 	srand(time(NULL));
 	for (int y=0; y < rows; y++){  board.insert(board.end(),{{}}); for (int x=0; x < collums; x++){ 
-		board.at(board.size()-1).insert(board.at(board.size()-1).end(),{{(x+(LENGTH/100))+((LENGTH/collums)*x)+((LENGTH/125)*x),(y+(WIDTH/100))+((WIDTH/rows)*y)+((WIDTH/125)*y),(LENGTH-20)/rows,(WIDTH-20)/rows}});}
+		board.at(board.size()-1).insert(board.at(board.size()-1).end(),{{((x+5)+((LENGTH-(LENGTH/20))/100))+(((LENGTH-(LENGTH/20))/collums)*x)+(((LENGTH-(LENGTH/20))/125)*x),((y+5)+((WIDTH-(WIDTH/20))/100))+(((WIDTH-(WIDTH/20))/rows)*y)+(((WIDTH-(WIDTH/20))/125)*y),((LENGTH-(LENGTH/20))-20)/rows,((WIDTH-(WIDTH/20))-20)/rows}});}
 	}
 	for (int i=0; i<2; i++) {int x=rand() % collums, y=rand() % rows;   board.at(x).at(y).num=2;} 
 	while (running){
