@@ -18,7 +18,7 @@ bool fullBoard(){
 	if (fb){
 		for(int y=0; y < board.size(); y++){
 			for(int x=0; x < board.at(y).size(); x++){
-				if (board.size()  < y+1 && board.at(y+1).at(x).num == board.at(y).at(x).num || board.at(y).size()  < x+1 &&  board.at(y).at(x+1).num == board.at(y).at(x).num) return false;
+				if (board.size() > y+1 && board.at(y+1).at(x).num == board.at(y).at(x).num || board.at(y).size()  > x+1 &&  board.at(y).at(x+1).num == board.at(y).at(x).num) return false;
 			}  
 		}
 	} return fb;
