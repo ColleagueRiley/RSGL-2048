@@ -15,4 +15,4 @@
 # How to run
 1) a .desktop file should be made in your local apps folder and your desktop folder
 2) to run it in terminal run
-	RSGL-2048
+	`RSGL-2048`
