@@ -1,5 +1,5 @@
 # RSGL-2048
-	RSGL-2048 is a clone of the 2048 made with RSGL
+RSGL-2048 is a clone of the 2048 made with RSGL
 
 # How To Install
 1) Install RSGL
