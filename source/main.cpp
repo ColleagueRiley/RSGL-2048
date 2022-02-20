@@ -1,4 +1,4 @@
-#include "../include/RSGL/RSGL.hpp"
+#include <RSGL/RSGL.hpp>
 #include <pthread.h>
 int LENGTH =  500;
 int WIDTH = 500;
@@ -86,12 +86,14 @@ void eventHandler(){
 	}
 }
 
-void piece::draw(){
+int d(int num){if (num >= 100 && num < 1000) return 1; else if (num >= 100) return 2; return 0;}
+
+void piece::draw(){		
 	RSGL::drawRect(r,colormap.at(num));		
 	if (num){ 
 		int exp=0;
 		if (num > 10 && num < 100) exp=1; if (num > 100 && num < 1000) exp=2; if (num > 1000) exp=3;
-		RSGL::drawText(std::to_string(num),{(int)(r.x),(int)(r.y + (r.width/2)), r.width/3},"res/fonts/SansPosterBold.ttf",{255,255,255});
+		RSGL::drawText(std::to_string(num),{(int)(r.x - (d(num)*12)),(int)(r.y + (r.width/2)), (r.width/3) - (5*d(num))},"/usr/share/fonts/SansPosterBold.ttf",{255,255,255});
 	}	
 }
 void piece::drawCir(){
