@@ -111,7 +111,7 @@ int main(){
 	while (running){
 		eventHandler();
 		for (int y=0; y < board.size(); y++) for (int x=0; x < board.at(y).size(); x++) board.at(y).at(x).draw();
-		b.draw();
+		b.draw(); RSGL::drawRoundRect({60,10,120,15},{255,240,0},false);
 		win.clear();
 	} win.close();
 }
