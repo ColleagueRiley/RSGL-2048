@@ -28,7 +28,7 @@ bool running=true;
 RSGL::window win("RSGL 2048",{X,Y,LENGTH,WIDTH+40},{200,200,200});
 std::vector<RSGL::color> colormap = {{255,255,255},{252,233,79},{138,226,52},{252,175,62},{114,159,207},{173,127,168},{193,125,17},{239,41,41},{184,150,0},{78,154,6},{206,92,0},{32,71,142}};
 
-RSGL::button b("New Game","/usr/share/fonts/TTF/SansPosterBold.ttf", {65,7,15}, {60,10,120,15},{255,0,0},{255,240,0});
+RSGL::button b("New Game","res/fonts/SansPosterBold.ttf", {65,7,15}, {60,10,120,15},{255,0,0},{255,240,0});
 
 void eventHandler(){ win.checkEvents(); b.checkEvents();
 	bool cnew=false; int r;
@@ -95,7 +95,7 @@ void eventHandler(){ win.checkEvents(); b.checkEvents();
 int d(int num){if (num > 100 && num < 1000) return 4; else if (num > 100) return 9;  else if (num > 10) return 3.8; return 3.5;}
 void piece::draw(){	
 	RSGL::drawRect(r, num ? colormap.at(log(num)/log(2)) : colormap.at(0), {.rounded = true} );		
-	if (num) RSGL::drawText(std::to_string(num),{r.x+r.h/(d(num)) ,r.y+r.h/2,r.h/4},"/usr/share/fonts/TTF/SansPosterBold.ttf",{255,255,255});	
+	if (num) RSGL::drawText(std::to_string(num),{r.x+r.h/(d(num)) ,r.y+r.h/2,r.h/4},"res/fonts/SansPosterBold.ttf",{255,255,255});	
 }
  
 int main(){
