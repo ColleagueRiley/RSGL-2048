@@ -2,8 +2,6 @@ inline void addTileAtRandom(size_t tiles[4][4], int num);
 inline bool tilesFull(size_t tiles[4][4]);
 inline void moveTiles(size_t tiles[4][4], size_t x, size_t y, RSGL_point dir, RSGL_point pos);
 
-inline size_t si_cstr_len(const char* string);
-
 void addTileAtRandom(size_t tiles[4][4], int num) {
     if (tilesFull(tiles))
         return;
@@ -47,13 +45,7 @@ void moveTiles(size_t tiles[4][4], size_t x, size_t y, RSGL_point dir, RSGL_poin
         }
 }
 
-size_t si_cstr_len(const char* string) {
-    char* str;
-    for (str = (char*)string; *str; str++);
-    size_t len = str - string;
-}
-
-char* si_u64_to_cstr(size_t num) {
+char* si_u64_to_cstr(size_t num, size_t* l) {
 	static char buffer[20 + 1]; /* NOTE(EimaMei): 20 chars is the maximum of numbers we can have in an u64. */
 	char* cur_char = buffer;
 
@@ -69,7 +61,8 @@ char* si_u64_to_cstr(size_t num) {
 
 	char* a = actual_str;
     
-    size_t len = si_cstr_len(res);
+    
+    size_t len = l = strlen(res);
 
 	char* b = actual_str + len - 1;
 	len *= 0.5;

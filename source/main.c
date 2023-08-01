@@ -86,9 +86,10 @@ int main() {
                 if (tiles[y][x] == 0)
                     continue;
 
-                char* textStr = si_u64_to_cstr(tiles[y][x]);
-                size_t len = si_cstr_len(textStr);
-                int textSize= (tileR.w / 3);
+                size_t len;
+                char* textStr = si_u64_to_cstr(tiles[y][x], &len);
+
+                int textSize = (tileR.w / 3);
                 RSGL_circle textC = {tileR.x + ((tileR.w + textSize) / 3.25) - (len * tileR.w / 15), tileR.y + ((tileR.w + textSize)/ 3.25), tileR.w / 3};
 
                 RSGL_drawText(textStr, font, textC, RSGL_RGB(255, 255, 255));
