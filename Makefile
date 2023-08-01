@@ -26,6 +26,7 @@ all:
 	fi
 
 	gcc source/main.c -O3 -I./include $(LIBS) -o RSGL-2048.$(EXT)
+	strip RSGL-2048.$(EXT)
 
 debug:
 	@if [ $(shell uname) = Darwin ]; then\
