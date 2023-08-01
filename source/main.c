@@ -58,16 +58,13 @@ int main() {
             if (b.s == RSGL_pressed || RGFW_isPressedI(window, RGFW_Return) || RGFW_isPressedJS(window, 0, RGFW_JS_START))
                 goto init;
 
-            if (tilesNotFull(tiles) == false)
-                continue;
-
-            if ((RGFW_isPressedI(window, RGFW_Up) || RGFW_isPressedI(window, RGFW_W)) || RGFW_isPressedJS(window, 0, RGFW_JS_UP))
+            if (RGFW_isPressedI(window, RGFW_Up) || RGFW_isPressedI(window, RGFW_W) || RGFW_isPressedJS(window, 0, RGFW_JS_UP))
                 moveTiles(tiles, 0, 1, RSGL_POINT(1, 1), RSGL_POINT(0, -1));
-            else if ((RGFW_isPressedI(window, RGFW_Left) || RGFW_isPressedI(window, RGFW_A)) || RGFW_isPressedJS(window, 0, RGFW_JS_LEFT)) 
+            else if (RGFW_isPressedI(window, RGFW_Left) || RGFW_isPressedI(window, RGFW_A) || RGFW_isPressedJS(window, 0, RGFW_JS_LEFT)) 
                 moveTiles(tiles, 1, 0, RSGL_POINT(1, 1), RSGL_POINT(-1, 0));
-            else if ((RGFW_isPressedI(window, RGFW_Right) || RGFW_isPressedI(window, RGFW_D)) || RGFW_isPressedJS(window, 0, RGFW_JS_RIGHT))
+            else if (RGFW_isPressedI(window, RGFW_Right) || RGFW_isPressedI(window, RGFW_D) || RGFW_isPressedJS(window, 0, RGFW_JS_RIGHT))
                 moveTiles(tiles, 3, 0, RSGL_POINT(-1, 1), RSGL_POINT(1, 0));
-            else if ((RGFW_isPressedI(window, RGFW_Down) || RGFW_isPressedI(window, RGFW_S)) || RGFW_isPressedJS(window, 0, RGFW_JS_DOWN))
+            else if (RGFW_isPressedI(window, RGFW_Down) || RGFW_isPressedI(window, RGFW_S) || RGFW_isPressedJS(window, 0, RGFW_JS_DOWN))
                 moveTiles(tiles, 0, 2, RSGL_POINT(1, -1), RSGL_POINT(0, 1));
             else continue;
          

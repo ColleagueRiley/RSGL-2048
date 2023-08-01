@@ -1,10 +1,13 @@
 inline void addTileAtRandom(size_t tiles[4][4], int num);
-inline bool tilesNotFull(size_t tiles[4][4]);
+inline bool tilesFull(size_t tiles[4][4]);
 inline void moveTiles(size_t tiles[4][4], size_t x, size_t y, RSGL_point dir, RSGL_point pos);
 
 inline size_t si_cstr_len(const char* string);
 
 void addTileAtRandom(size_t tiles[4][4], int num) {
+    if (tilesFull(tiles))
+        return;
+
     RSGL_point p = RSGL_POINT(rand() % 4, rand() % 4);
 
     while (tiles[p.y][p.x]) 
@@ -13,13 +16,13 @@ void addTileAtRandom(size_t tiles[4][4], int num) {
     tiles[p.y][p.x] = num;
 }
 
-bool tilesNotFull(size_t tiles[4][4]) {
+bool tilesFull(size_t tiles[4][4]) {
     unsigned int x, y;
     for (y = 0; y < 4; y++)
         for (x = 0; x < 4; x++)
             if (!tiles[y][x])
-                return true;
-    return false;
+                return false;
+    return true;
 }
 
 void moveTiles(size_t tiles[4][4], size_t x, size_t y, RSGL_point dir, RSGL_point pos) {
