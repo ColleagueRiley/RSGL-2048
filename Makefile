@@ -12,7 +12,7 @@ ifeq ($(detected_OS),Windows)
 	EXT = exe
 endif
 ifeq ($(detected_OS),Darwin)        # Mac OS X
-	LIBS := -I./include -I./include/deps/Silicon ./include/deps/Silicon*.o -lm -framework Foundation -framework AppKit -framework OpenGL -framework CoreVideo
+	LIBS := -I./include -lm -framework Foundation -framework AppKit -framework OpenGL -framework CoreVideo
 	EXT = out
 endif
 ifeq ($(detected_OS),Linux)
@@ -21,20 +21,9 @@ ifeq ($(detected_OS),Linux)
 endif
 
 all:
-	@if [ $(shell uname) = Darwin ]; then\
-		make include/deps/Silicon/source/mac.o;\
-	fi
-
 	gcc source/main.c -O3 -I./include $(LIBS) -o RSGL-2048.$(EXT)
 	strip RSGL-2048.$(EXT)
 
 debug:
-	@if [ $(shell uname) = Darwin ]; then\
-		make include/deps/Silicon/source/mac.o;\
-	fi
-
 	gcc source/main.c -I./include $(LIBS) -o RSGL-2048.$(EXT)
 	./RSGL-2048.$(EXT)
-
-deps/Silicon/source/mac.o:
-	cd deps/Silicon/source/ && gcc -c *.m -I../
