@@ -1,3 +1,5 @@
+#include <string.h>
+
 inline void addTileAtRandom(size_t tiles[4][4], int num);
 inline bool tilesFull(size_t tiles[4][4]);
 inline void moveTiles(size_t tiles[4][4], size_t x, size_t y, RSGL_point dir, RSGL_point pos);
@@ -62,7 +64,7 @@ char* si_u64_to_cstr(size_t num, size_t* l) {
 	char* a = actual_str;
     
     
-    size_t len = l = strlen(res);
+    size_t len = *l = strlen(res);
 
 	char* b = actual_str + len - 1;
 	len *= 0.5;

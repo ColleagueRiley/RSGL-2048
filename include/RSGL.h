@@ -32,8 +32,8 @@
     #define RSGL_NO_MINIAUDIO_IMPLEMENTATION - do not have `#define MINIAUDIO_IMPLEMENTATION` in this header (you'll have to link miniaudio some other way to use audio)
     #define RSGL_NO_SAVE_IMAGE - do not save/load images (don't use RSGL_drawImage if you use this), 
                                     RSGL_drawImage saves the file name + texture so it can load it
-                                    when you ask for it later. This disables that
-    #define RSGL_INIT_FONTS [number of fonts] - set how much room should be pre-allocated for fonts by fontstash
+                                    when you ask for it later. This disables that 
+    #define RSGL_INIT_FONTS [number of fonts] - set hFow much room should be pre-allocated for fonts by fontstash
                                                 this avoids performance issues related to realloc
                                                 RSGL_INIT_FONTS = 4 by default
     #define RSGL_INIT_IMAGES [number of fonts] - set how much room should be pre-allocated for images by RSGL
@@ -43,6 +43,8 @@
                                                 this avoids performance issues related to realloc
                                                 RSGL_NEW_IMAGES 10 by default
 
+    #define RSGL_LEGACY_OPENGL - use legacy opengl functions
+        
     RGFW (more RGFW documentation in RGFW.h):
     
 	#define RGFW_PRINT_ERRORS - (optional) makes it so RGFW prints errors when they're found
@@ -58,10 +60,12 @@
 	#define RGFW_X11 (optional) (unix only) if X11 should be used. This option is turned on by default by unix systems except for MacOS
 	#define RGFW_WGL_LOAD (optional) (windows only) if WGL should be loaded dynamically during runtime
 */
-#define RSGL_NO_AUDIO
 
 #ifndef RSGL_INIT_FONTS
 #define RSGL_INIT_FONTS 4
+#endif
+#ifndef RSGL_NEW_FONTS
+#define RSGL_NEW_FONTS 2
 #endif
 #ifndef RSGL_INIT_IMAGES
 #define RSGL_INIT_IMAGES 20
@@ -70,12 +74,87 @@
 #define RSGL_NEW_IMAGES 10
 #endif
 
+/*! Optional arguments for making a windows */
+#define RSGL_TRANSPARENT_WINDOW		(1L<<9) /*!< If the window is transparent*/
+#define RSGL_NO_BORDER		(1L<<3) /*!< If the window doesn't have border*/
+#define RSGL_NO_RESIZE		(1L<<4) /*!< If the window cannot be resized  by the user*/
+#define RSGL_ALLOW_DND     (1L<<5) /*!< if the window supports drag and drop*/
+#define RSGL_HIDE_MOUSE (1L<<6) /* if the window should hide the mouse or not (can be toggled later on)*/
+#define RSGL_OPENGL (1L<<7) /* use normal opengl (if another version is also selected) */
+#define RSGL_FULLSCREEN (1L<<8) /* if the window should be fullscreen by default or not */
+#define RSGL_CENTER (1L<<10)
+/*! event codes */
+#define RSGL_keyPressed 2 /*!< a key has been pressed*/
+#define RSGL_keyReleased 3 /*!< a key has been released*/
+#define RSGL_mouseButtonPressed 4 /*!< a mouse button has been pressed (left,middle,right)*/
+#define RSGL_mouseButtonReleased 5 /*!< a mouse button has been released (left,middle,right)*/
+#define RSGL_mousePosChanged 6 /*!< the position of the mouse has been changed*/
+#define RSGL_jsButtonPressed 7 /*!< a joystick button was pressed */
+#define RSGL_jsButtonReleased 8 /*!< a joystick button was released */
+#define RSGL_jsAxisMove 9 /*!< an axis of a joystick was moved*/
+#define RSGL_windowAttribsChange 10 /*!< the window was moved or resized (by the user) */
+#define RSGL_quit 33 /*!< the user clicked the quit button*/ 
+#define RSGL_dnd 34 /*!< a file has been dropped into the window*/
+#define RSGL_dnd_init 35 /*!< the start of a dnd event, when the place where the file drop is known */
+
+/*! mouse button codes */
+#define RSGL_mouseLeft  1 /*!< left mouse button is pressed*/
+#define RSGL_mouseMiddle  2 /*!< mouse-wheel-button is pressed*/
+#define RSGL_mouseRight  3 /*!< right mouse button is pressed*/
+#define RSGL_mouseScrollUp  4 /*!< mouse wheel is scrolling up*/
+#define RSGL_mouseScrollDown  5 /*!< mouse wheel is scrolling down*/
+
+#define RSGL_JS_A RGFW_JS_A /* or PS X button */
+#define RSGL_JS_B RGFW_JS_B /* or PS circle button */
+#define RSGL_JS_Y RGFW_JS_Y /* or PS triangle button */
+#define RSGL_JS_X RGFW_JS_X /* or PS square button */
+#define RSGL_JS_START RGFW_JS_START /* start button */
+#define RSGL_JS_SELECT RGFW_JS_SELECT /* select button */
+#define RSGL_JS_HOME RGFW_JS_HOME /* home button */
+#define RSGL_JS_UP RGFW_JS_UP /* dpad up */
+#define RSGL_JS_DOWN RGFW_JS_DOWN /* dpad down*/
+#define RSGL_JS_LEFT RGFW_JS_LEFT /* dpad left */
+#define RSGL_JS_RIGHT RGFW_JS_RIGHT /* dpad right */
+#define RSGL_JS_L1 RGFW_JS_L1 /* left bump */
+#define RSGL_JS_L2 RGFW_JS_L2 /* left trigger*/
+#define RSGL_JS_R1 RGFW_JS_R1 /* right bumper */
+#define RSGL_JS_R2 RGFW_JS_R2 /* right trigger */
+
+/* 
+keys = 
+RGFW_{key} 
+
+keys will not be reincluded into RSGL
+*/
 
 #ifndef RSGL_H
 #define RSGL_H
 
+#ifndef RSGLDEF
+#ifdef __APPLE__
+#define RSGLDEF extern inline
+#else
+#define RSGLDEF inline
+#endif
+#endif
+
+#define RGFWDEF RSGLDEF
+
+#if !defined(u8)
+    #include <stdint.h>
+
+    typedef uint8_t     u8;
+	typedef int8_t      i8;
+	typedef uint16_t   u16;
+	typedef int16_t    i16;
+	typedef uint32_t   u32;
+	typedef int32_t    i32;
+	typedef uint64_t   u64;
+	typedef int64_t    i64;
+#endif
+
 typedef struct RSGL_rect {
-    int x, y, w, h;
+    i32 x, y, w, h;
 } RSGL_rect;
 #define RSGL_RECT(x, y, w, h) (RSGL_rect){x, y, w, h}
 
@@ -86,7 +165,7 @@ typedef struct RSGL_rect {
 #define RGFW_EXTRA_CONTEXT
 #include "deps/RGFW.h"
 #else
-typedef struct {unsigned int type, x, y;} RGFW_Event;
+typedef struct {u32 type, x, y;} RGFW_Event;
 #endif
 
 
@@ -100,27 +179,27 @@ RSGL_[shape]
 */
 
 typedef struct RSGL_point {
-    int x, y;
+    i32 x, y;
 } RSGL_point;
 #define RSGL_POINT(x, y) (RSGL_point){x, y}
 
-typedef struct RSGL_pointF {
-    float x, y;
-} RSGL_pointF;
+typedef struct RSGL_pointF { float x, y; } RSGL_pointF;
 
 typedef struct RSGL_point3D {
-    int x, y, z;
+    i32 x, y, z;
 } RSGL_point3D;
+
+typedef struct RSGL_point3DF { float x, y, z; } RSGL_point3DF;
 
 #define RSGL_POINT3D(x, y, z) (RSGL_point3D){x, y, z}
 
 typedef struct RSGL_area {
-    int w, h;
+    i32 w, h;
 } RSGL_area;
 #define RSGL_AREA(w, h) (RSGL_area){w, h}
 
 typedef struct RSGL_circle {
-    int x, y, d;
+    i32 x, y, d;
 } RSGL_circle;
 #define RSGL_CIRCLE(x, y, d) (RSGL_circle){x, y, d}
 
@@ -131,12 +210,45 @@ typedef struct RSGL_triangle {
 
 #define RSGL_createTriangle(x1, y1, x2, y2, x3, y3) (RSGL_triangle){{x1, y1}, {x2, y2}, {x3, y3}}
 
+typedef struct RSGL_cube {
+    i32 x, y, z, w, h, l;
+} RSGL_cube;
+#define RSGL_CUBE(x, y, z, w, h, l) (RSGL_cube){x, y, z, w, h, l}
+
+/* 
+the color stucture is in 
+ABGR by default for performance reasons 
+(converting color to hex for example)
+*/
 typedef struct RSGL_color {
-    unsigned char r, g, b, a;
+    u8 a, b, g, r;
 } RSGL_color;
 
-#define RSGL_RGB(r, g, b) (RSGL_color){r, g, b, 255}
-#define RSGL_RGBA(r, g, b, a) (RSGL_color){r, g, b, a}
+#define RSGL_RGBA(r, g, b, a) ((RSGL_color){(a), (b), (g), (r)})
+#define RSGL_RGB(r, g, b) ((RSGL_color){255, (b), (g), (r)})
+
+#define RSGL_COLOR_TO_HEX(color) ((u32)(color) & 0xFFFFFF00)
+#define RSGL_RGB_TO_HEX(r, g, b, a) (RSGL_COLOR_TO_HEX(RSGL_RGBA(r, g, b, a)))
+#define RSGL_RGBA_TO_HEX(r, g, b) (RSGL_COLOR_TO_HEX(RSGL_RGB(r, g, b, a)))
+
+/*
+******
+RGFW_FUNCTION_DEFINES
+******
+*/
+
+#define RSGL_isPressedI RGFW_isPressedI
+#define RSGL_isPressedS RGFW_isPressedS
+#define RSGL_window_readClipboard RGFW_window_readClipboard 
+#define RSGL_window_writeClipboard RGFW_window_writeClipboard
+#define RSGL_registerJoystickF RGFW_registerJoystickF
+#define RSGL_registerJoystick RGFW_registerJoystick
+#define RSGL_isPressedJS RGFW_isPressedJS
+#define RSGL_getMaxGLVersion RGFW_getMaxGLVersion
+#define RSGL_setGLVersion RGFW_setGLVersion
+#define RSGL_window_swapInterval RGFW_window_swapInterval
+#define RSGL_getProcAddress RGFW_getProcAddress
+#define RSGL_window_checkFPS RGFW_window_checkFPS
 
 /* 
 *******
@@ -147,18 +259,28 @@ RSGL_window
 #ifndef RSGL_NO_WINDOW
 typedef RGFW_window RSGL_window;
 
-inline RSGL_window* RSGL_createWindow(const char* name, RSGL_rect r, unsigned long args);
+RSGLDEF RSGL_window* RSGL_createWindow(const char* name, RSGL_rect r, u64 args);
 
-inline void RSGL_window_setIconImage(RSGL_window* win, const char* image); 
+RSGLDEF void RSGL_window_setIconImage(RSGL_window* win, const char* image); 
 #define RGFW_window_setIcon RSGL_window_setIcon
 
 #define RSGL_window_checkEvent RGFW_window_checkEvent
 
-inline void RSGL_window_makeCurrent(RSGL_window* win);
+RSGLDEF void RSGL_window_makeCurrent(RSGL_window* win);
 
-inline void RSGL_window_clear(RSGL_window* win, RSGL_color color);
+RSGLDEF void RSGL_window_clear(RSGL_window* win, RSGL_color color);
 
-inline void RSGL_window_close(RSGL_window* win);
+RSGLDEF void RSGL_window_close(RSGL_window* win);
+
+#define RSGL_window_screenSize RGFW_window_screenSize
+#define RSGL_window_move RGFW_window_move
+#define RSGL_window_resize RGFW_window_resize
+#define RSGL_window_setName RGFW_window_setName
+#define RSGL_window_setMouse RGFW_window_setMouse
+#define RSGL_window_setMouseDefault RGFW_window_setMouseDefault
+#define RSGL_window_getGlobalMousePoint RGFW_window_getGlobalMousePoint
+#define RSGL_window_getGlobalMousePoint RGFW_window_getGlobalMousePoint
+
 #else /* RSGL_NO_WINDOW */
 
 /* 
@@ -167,9 +289,9 @@ RSGL_GRAPHICS_CONTEXT
 *********************
 */
 
-inline void RSGL_initGraphics(RSGL_area r, void* loader);
-inline void RSGL_graphics_clear(RSGL_color c);
-inline void RSGL_graphics_free();
+RSGLDEF void RSGL_initGraphics(RSGL_area r, void* loader);
+RSGLDEF void RSGL_graphics_clear(RSGL_color c);
+RSGLDEF void RSGL_graphics_free();
 
 #endif /* RSGL_GRAPHICS_CONTEXT / !RSGL_NO_WINDOW */
 
@@ -181,50 +303,75 @@ RSGL_draw
 
 
 /* RSGL_draw args */
-inline void RSGL_rotate(RSGL_point3D rotate);
-inline void RSGL_setTexture(unsigned int texture);
-inline void RSGL_setGradient(RSGL_color gradient[], size_t len);
+RSGLDEF void RSGL_rotate(RSGL_point3D rotate);
+RSGLDEF void RSGL_setTexture(u32 texture);
+RSGLDEF void RSGL_setGradient(RSGL_color gradient[], size_t len);
 
 /* args clear after a draw function by default, this toggles that */
-inline void RSGL_defaultClearArgs(); /* toggles if args are cleared by default or not */
-inline void RSGL_clearArgs(); /* clears the args */
+RSGLDEF void RSGL_defaultClearArgs(); /* toggles if args are cleared by default or not */
+RSGLDEF void RSGL_clearArgs(); /* clears the args */
+
+RSGLDEF void RSGL_BASIC_DRAW(u32 RGL_TYPE, RSGL_point3DF* points, RSGL_point3DF* texPoints, RSGL_rect rect, RSGL_color c, size_t len);
+/* 2D shape drawing */
 
 void RSGL_drawPoint(RSGL_point p, RSGL_color c);
+void RSGL_drawPoint3D(RSGL_point3D p, RSGL_color c);
+
 void RSGL_drawTriangle(RSGL_triangle t, RSGL_color c);
 
 void RSGL_drawRect(RSGL_rect r, RSGL_color c);
 void RSGL_drawRoundRect(RSGL_rect r, RSGL_point rounding, RSGL_color c);
 
-void RSGL_drawPolygon(RSGL_rect r, unsigned int sides, RSGL_color c);
+void RSGL_drawPolygon(RSGL_rect r, u32 sides, RSGL_color c);
 void RSGL_drawArc(RSGL_rect o, RSGL_point arc, RSGL_color color);
 void RSGL_drawCircle(RSGL_circle c, RSGL_color color);
 void RSGL_drawOval(RSGL_rect o, RSGL_color c);
 
-void RSGL_drawLine(RSGL_point p1, RSGL_point p2, unsigned int thickness, RSGL_color c);
+void RSGL_drawLine(RSGL_point p1, RSGL_point p2, u32 thickness, RSGL_color c);
 
-void RSGL_drawTriangleOutline(RSGL_triangle t, unsigned int thickness, RSGL_color c);
+/* 2D outlines */
 
-void RSGL_drawRectOutline(RSGL_rect r, unsigned int thickness, RSGL_color c);
-void RSGL_drawRoundRectOutline(RSGL_rect r, RSGL_point rounding, unsigned int thickness, RSGL_color c);
+void RSGL_drawTriangleOutline(RSGL_triangle t, u32 thickness, RSGL_color c);
 
-void RSGL_drawPolygonOutline(RSGL_rect r, unsigned int sides, unsigned int thickness, RSGL_color c);
-void RSGL_drawArcOutline(RSGL_rect o, RSGL_point arc, unsigned int thickness, RSGL_color color);
-void RSGL_drawCircleOutline(RSGL_circle c, unsigned int thickness, RSGL_color color);
-void RSGL_drawOvalOutline(RSGL_rect o, unsigned int thickness, RSGL_color c);
+void RSGL_drawRectOutline(RSGL_rect r, u32 thickness, RSGL_color c);
+void RSGL_drawRoundRectOutline(RSGL_rect r, RSGL_point rounding, u32 thickness, RSGL_color c);
+
+void RSGL_drawPolygonOutline(RSGL_rect r, u32 sides, u32 thickness, RSGL_color c);
+void RSGL_drawArcOutline(RSGL_rect o, RSGL_point arc, u32 thickness, RSGL_color color);
+void RSGL_drawCircleOutline(RSGL_circle c, u32 thickness, RSGL_color color);
+void RSGL_drawOvalOutline(RSGL_rect o, u32 thickness, RSGL_color c);
+
+/* 3D shaoe drawing */
+void RSGL_drawCube(RSGL_cube r, RSGL_color c);
 
 #ifndef RSGL_NO_TEXT
-inline unsigned int RSGL_loadFont(const char* font);
+RSGLDEF u32 RSGL_loadFont(const char* font);
 #define RSGL_FONT(str) RSGL_loadFont(str)
 
-void RSGL_drawText(const char* text, unsigned int font, RSGL_circle c, RSGL_color color);
+RSGLDEF void RSGL_setFont(u32 font);
 
-inline unsigned int RSGL_textWidth(const char* text, unsigned int font, unsigned int fontSize, size_t textEnd);
+typedef struct RFont_font RFont_font;
+RSGLDEF void RSGL_setRFont(RFont_font* font);
+
+RSGLDEF void RSGL_drawText_len(const char* text, size_t len, RSGL_circle c, RSGL_color color);
+RSGLDEF void RSGL_drawText(const char* text, RSGL_circle c, RSGL_color color);
+#define RSGL_drawTextF(text, font, c, color) \
+    RSGL_setFont(font);\
+    RSGL_drawText(text, c, color);
+
+RSGLDEF u32 RSGL_textWidth(const char* text, u32 fontSize, size_t textEnd);
+#define RSGL_textWidthF(text, fontSize, textEnd) \
+    RSGL_setFont(font);\
+    RSGL_textWidthF(text, fontSize, textEnd);
 #endif /* RSGL_NO_TEXT */
 
-inline unsigned int RSGL_createTexture(unsigned char* bitmap, RSGL_area memsize, unsigned char channels);
-inline unsigned int RSGL_drawImage(const char* image, RSGL_rect r);
+RSGLDEF u32 RSGL_createTexture(u8* bitmap, RSGL_area memsize,    u8 channels);
+RSGLDEF u32 RSGL_drawImage(const char* image, RSGL_rect r);
 
 #define RSGL_loadImage(image) RSGL_drawImage(image, (RSGL_rect){})
+
+#define RSGL_deleteTexture(texture) glDeleteTextures(1, &texture);
+#define RSGL_deleteTextures(texture, num) glDeleteTextures(num, &texture);
 
 /* 
 *******
@@ -248,18 +395,18 @@ typedef struct RSGL_button {
 } RSGL_button;
 
 /* these functions should be run in an event loop */
-inline void RSGL_button_update(
+RSGLDEF void RSGL_button_update(
     RSGL_button* b, /* button pointer */
     RGFW_Event e /* current event */
 );
 
-inline void RSGL_ratio_button_update(
+RSGLDEF void RSGL_ratio_button_update(
     RSGL_button* bArray, /* array of ratio buttons (if you have an array of general buttons I suggest you do something like `buttons + x`) */
     size_t arrayLen, /* size of the array, or last button to update in the array */
     RGFW_Event e
 );
 
-inline void RSGL_slider_update(
+RSGLDEF void RSGL_slider_update(
     RSGL_button* b, /* button pointer */
     /* limits, 
         if the slider moves [up/down], the width should be 0, 
@@ -274,19 +421,19 @@ typedef struct RSGL_textbox {
     char* text;
 
     RSGL_rect r;
-    unsigned int textSize;
+    u32 textSize;
     RSGL_point cursor;
 
     /* info about the string */
     size_t index, len, capacity;       
 } RSGL_textbox;
 
-inline RSGL_textbox* RSGL_createTextbox(const char* text, unsigned int textSize, RSGL_rect box, RSGL_point cursor);
+RSGLDEF RSGL_textbox* RSGL_createTextbox(const char* text, u32 textSize, RSGL_rect box, RSGL_point cursor);
 
-inline void RSGL_textbox_update(RSGL_textbox* texbox, RGFW_Event e);
-inline void RSGL_textbox_draw(RSGL_textbox* textBox, int font, RSGL_color c, RSGL_color cursorColor);
+RSGLDEF void RSGL_textbox_update(RSGL_textbox* texbox, RGFW_Event e);
+RSGLDEF void RSGL_textbox_draw(RSGL_textbox* textBox, i32 font, RSGL_color c, RSGL_color cursorColor);
 
-inline void RSGL_textbox_free(RSGL_textbox* tb);
+RSGLDEF void RSGL_textbox_free(RSGL_textbox* tb);
 #endif /* RSGL_NO_TEXT */
 
 #endif /* RGFW_NO_WIDGETS */
@@ -310,20 +457,20 @@ typedef struct RSGL_audio {
 } RSGL_audio;
 
 void RSGL_audio_playFile(RSGL_audio* a, const char* file);
-inline void RSGL_audio_play(RSGL_audio a);
-inline void RSGL_audio_pause(RSGL_audio a);
-inline void RSGL_audio_stop(RSGL_audio a);
-inline void RSGL_audio_free(RSGL_audio a);
+RSGLDEF void RSGL_audio_play(RSGL_audio a);
+RSGLDEF void RSGL_audio_pause(RSGL_audio a);
+RSGLDEF void RSGL_audio_stop(RSGL_audio a);
+RSGLDEF void RSGL_audio_free(RSGL_audio a);
 
 /* write audio info */
-inline void RSGL_audio_setVolume(RSGL_audio a, unsigned int);
-inline void RSGL_audio_seek(RSGL_audio a, unsigned int position);
+RSGLDEF void RSGL_audio_setVolume(RSGL_audio a, u32);
+RSGLDEF void RSGL_audio_seek(RSGL_audio a, u32 position);
 
 /* get audio info */
-inline unsigned int RSGL_audio_len(RSGL_audio a);
-inline unsigned int RSGL_audio_volume(RSGL_audio a);
-inline unsigned int RSGL_audio_position(RSGL_audio a);
-inline bool RSGL_audio_isPlaying(RSGL_audio a);
+RSGLDEF u32 RSGL_audio_len(RSGL_audio a);
+RSGLDEF u32 RSGL_audio_volume(RSGL_audio a);
+RSGLDEF u32 RSGL_audio_position(RSGL_audio a);
+RSGLDEF bool RSGL_audio_isPlaying(RSGL_audio a);
 
 #endif /* RSGL_NO_AUDIO */
 
@@ -334,17 +481,17 @@ extra
 */
 
 /* wait functions */
-inline bool RSGL_wait(unsigned int miliseconds);
-inline bool RSGL_wait_frames(unsigned int frames);
-inline char RSGL_keyCodeToKeyChar(unsigned int keycode);
+RSGLDEF bool RSGL_wait(u32 miliseconds);
+RSGLDEF bool RSGL_wait_frames(u32 frames);
+RSGLDEF char RSGL_keyCodeToKeyChar(u32 keycode);
 
 /* ** collision functions ** */
-inline bool RSGL_circleCollidePoint(RSGL_circle c, RSGL_point p);
-inline bool RSGL_circleCollideRect(RSGL_circle c, RSGL_rect r);
-inline bool RSGL_circleCollide(RSGL_circle cir1, RSGL_circle cir2);
-inline bool RSGL_rectCollidePoint(RSGL_rect r, RSGL_point p);
-inline bool RSGL_rectCollide(RSGL_rect r, RSGL_rect r2);
-inline bool RSGL_pointCollide(RSGL_point p, RSGL_point p2);
+RSGLDEF bool RSGL_circleCollidePoint(RSGL_circle c, RSGL_point p);
+RSGLDEF bool RSGL_circleCollideRect(RSGL_circle c, RSGL_rect r);
+RSGLDEF bool RSGL_circleCollide(RSGL_circle cir1, RSGL_circle cir2);
+RSGLDEF bool RSGL_rectCollidePoint(RSGL_rect r, RSGL_point p);
+RSGLDEF bool RSGL_rectCollide(RSGL_rect r, RSGL_rect r2);
+RSGLDEF bool RSGL_pointCollide(RSGL_point p, RSGL_point p2);
 
 #endif /* ndef RSGL_H */
 
@@ -375,7 +522,7 @@ int main() {
     for (;;) {
         RSGL_window_checkEvent(win); // NOTE: checking events outside of a while loop may cause input lag 
 
-        if (win->event.type == RGFW_quit || RGFW_isPressedI(win, RGFW_Escape))
+        if (win->event.type == RSGL_quit || RSGL_isPressedI(win, RSGL_Escape))
             break;
 
         RSGL_drawRect((RSGL_rect){200, 200, 200, 200}, RSGL_RGB(255, 255, 255))
@@ -422,6 +569,9 @@ int main() {
 
 	you can then use Silicon/include and libSilicon.a for building RGFW projects
 
+    Alternatively, you also can find pre-built binaries for Silicon at
+    https://github.com/ColleagueRiley/Silicon/tree/binaries
+
 	ex.
 	gcc main.c -framework Foundation -lSilicon -framework AppKit -framework CoreVideo -ISilicon/include
 
@@ -431,20 +581,26 @@ int main() {
 
 #ifdef RSGL_IMPLEMENTATION
 
+#ifdef RSGL_LEGACY_OPENGL
+#define RFONT_RENDER_LEGACY
+#define RGL_LEGACY_OPENGL
+#endif
+
 #define RGFW_IMPLEMENTATION
-#define RLGL_IMPLEMENTATION
+#define RGL_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <assert.h>
 
-#include "deps/rlgl.h"
+#include "deps/RGL.h"
 
 #ifndef RSGL_NO_WINDOW
 #include "deps/RGFW.h"
 #endif
 
 #ifndef RSGL_NO_TEXT
-#include "deps/rglfontstash.h"
+#define RFONT_IMPLEMENTATION
+#include "deps/RFont.h"
 #endif /* RSGL_NO_TEXT */
 
 #include "deps/stb_image.h"
@@ -459,35 +615,47 @@ int main() {
 #include "deps/miniaudio.h"
 #endif /* RSGL_NO_AUDIO */
 
-#undef bool
-#if !defined(__cplusplus)
-#define bool _Bool
-#elif defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#define _Bool bool
-#endif
+#include <stdbool.h>
 
 /* RSGL_args */
 typedef struct RSGL_drawArgs { 
     RSGL_point3D rotate; 
-    unsigned int texture; 
+    u32 texture; 
     RSGL_color gradient[6000]; 
-    unsigned int gradient_len;
+    u32 gradient_len;
     
     RSGL_rect currentRect; /* size of current window */
 } RSGL_drawArgs;
 
-RSGL_drawArgs RSGL_args = {{0, 0, 0}, 1, 0, 0};
+RSGL_drawArgs RSGL_args = {{0, 0, 0}, 1, { }, 0};
 bool RSGL_argsClear = true;
 
-unsigned int RSGL_windowsOpen = 0;
+#ifndef RSGL_NO_TEXT
+typedef struct RSGL_fontData {
+    char* name;
+    RFont_font* f;
+} RSGL_fontData;
 
-typedef struct { const char* img; unsigned int tex;} RSGL_image;
+typedef struct RSGL_fontsData {
+    RFont_font* f;
+    
+    RSGL_fontData* fonts;
+    size_t len;
+    size_t cap;
+} RSGL_fontsData;
+
+RSGL_fontsData RSGL_font = {NULL, NULL, 0, 0};
+#endif
+
+u32 RSGL_windowsOpen = 0;
+
+typedef struct { const char* img; u32 tex;} RSGL_image;
 RSGL_image* RSGL_images = NULL;
 size_t RSGL_images_len = 0;
 
-inline void glPrerequisites(RSGL_rect r, RSGL_color c);
+RSGLDEF void glPrerequisites(RSGL_rect r, RSGL_color c);
 
-inline bool RSGL_cstr_equal(const char* str, const char* str2);
+RSGLDEF bool RSGL_cstr_equal(const char* str, const char* str2);
 bool RSGL_cstr_equal(const char* str, const char* str2) {
     char* s;
     char* s2 = (char*)str2;
@@ -506,23 +674,25 @@ bool RSGL_cstr_equal(const char* str, const char* str2) {
 }
 
 
-inline void RSGL_BASIC_DRAW(unsigned int RL_TYPE, RSGL_pointF points[], RSGL_pointF texPoints[], RSGL_rect rect, RSGL_color c, size_t len);
-void RSGL_BASIC_DRAW(unsigned int RL_TYPE, RSGL_pointF points[], RSGL_pointF texPoints[], RSGL_rect rect, RSGL_color c, size_t len) {
-    rlSetTexture(RSGL_args.texture);
+void RSGL_BASIC_DRAW(u32 RGL_TYPE, RSGL_point3DF* points, RSGL_point3DF* texPoints, RSGL_rect rect, RSGL_color c, size_t len) {
+    rglSetTexture(RSGL_args.texture);
+    glEnable(GL_TEXTURE_2D);
 
-    int i;
+    glBindTexture(GL_TEXTURE_2D, RSGL_args.texture);
+
+    i32 i;
 
     glPrerequisites(rect, c);
-        rlBegin(RL_TYPE);
+        rglBegin(RGL_TYPE);
             for (i = 0; i < len; i++) {
                 if (i && i <= RSGL_args.gradient_len)
-                    rlColor4ub(RSGL_args.gradient[i - 1].r, RSGL_args.gradient[i - 1].g, RSGL_args.gradient[i - 1].b, RSGL_args.gradient[i - 1].a);
-                rlTexCoord2f(texPoints[i].x, texPoints[i].y);
-                rlVertex2f(points[i].x, points[i].y);
+                    rglColor4ub(RSGL_args.gradient[i - 1].r, RSGL_args.gradient[i - 1].g, RSGL_args.gradient[i - 1].b, RSGL_args.gradient[i - 1].a);
+                rglTexCoord2f(texPoints[i].x, texPoints[i].y);
+                rglVertex3f(points[i].x, points[i].y, points[i].z);
             }
-        rlEnd();
-    rlPopMatrix();
-    rlSetTexture(0);
+        rglEnd();
+    rglPopMatrix();
+    rglSetTexture(0);
 
     if (RSGL_argsClear) RSGL_clearArgs();
 }
@@ -531,21 +701,37 @@ void RSGL_BASIC_DRAW(unsigned int RL_TYPE, RSGL_pointF points[], RSGL_pointF tex
     RSGL_window
 */
 
-#ifndef RSGL_NO_TEXT
-FONScontext* RSGL_fonsContext;
-#endif /* RSGL_NO_TEXT */
-
 #ifndef RSGL_NO_WINDOW
 
-RSGL_window* RSGL_createWindow(const char* name, RSGL_rect r, unsigned long args) {
+RSGL_window* RSGL_createWindow(const char* name, RSGL_rect r, u64 args) {
     RGFW_window* win = RGFW_createWindow(name, r.x, r.y, r.w, r.h, args);
 
     if (RSGL_windowsOpen == 0) {
-        rlLoadExtensions((void*)RGFW_getProcAddress);
-        rlglInit(win->r.w, win->r.h);
+        #ifndef GRAPHICS_API_OPENGL_11
+        rglInit(win->r.w, win->r.h, (void*)RGFW_getProcAddress);
+    
+        rglRenderBatch();      // Update and draw internal render batch
+        #endif
+
+        // Init state: Blending mode
+        glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Color blending function (how colors are mixed)
+        glEnable(GL_BLEND);                                     // Enable color blending (required to work with transparencies)
+
+        glCullFace(GL_BACK);                                    // Cull the back face (default)
+        glFrontFace(GL_CCW);                                    // Front face are defined counter clockwise (default)
+        glEnable(GL_CULL_FACE);        
+
+        rglMatrixMode(RGL_PROJECTION);    // Switch to projection matrix
+        rglPushMatrix();                 // Save previous matrix, which contains the settings for the 2d ortho projection
+        rglLoadIdentity();               // Reset current matrix (projection)
+
         #ifndef RSGL_NO_TEXT
-        RSGL_fonsContext = fonsCreateInternal(500, 500, 1);
+        RFont_init(win->r.w, win->r.h);
+        RSGL_font.fonts = (RSGL_fontData*)malloc(sizeof(RSGL_fontData) * RSGL_INIT_FONTS); 
         #endif
     }
 
@@ -556,8 +742,8 @@ RSGL_window* RSGL_createWindow(const char* name, RSGL_rect r, unsigned long args
 }
 
 void RSGL_window_setIconImage(RGFW_window* win, const char* image) {
-    int x, y, c;
-    unsigned char* img = stbi_load(image, &x, &y, &c, 0);
+    i32 x, y, c;
+    u8* img = stbi_load(image, &x, &y, &c, 0);
 
     RGFW_window_setIcon(win, img, x, y, c);
 
@@ -571,25 +757,39 @@ void RSGL_window_makeCurrent(RSGL_window* win) {
 }
 
 void RSGL_window_clear(RSGL_window* win, RSGL_color color) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    rlDrawRenderBatchActive();
+    #ifndef GRAPHICS_API_OPENGL_11
+        #ifndef RGFW_RECT
+        rglSetFramebufferSize(win->w, win->h);
+        #else /* n RGFW_RECT */
+        rglSetFramebufferSize(win->r.w, win->r.h);
+        #endif /* RGFW_RECT */
+    #endif /* n GRAPHICS_API_OPENGL_11*/
 
     RSGL_window_makeCurrent(win);
     RGFW_window_swapBuffers(win);
-    
+
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+    rglRenderBatch();
 }
 
 void RSGL_window_close(RSGL_window* win) {
     RSGL_windowsOpen--;
 
     if (RSGL_windowsOpen == 0) {
+        u32 i;
         #ifndef RSGL_NO_TEXT
-        fonsDeleteInternal(RSGL_fonsContext);
-        #endif
-        rlglClose();
+        for (i = 0; i < RSGL_font.len; i++)
+            RFont_font_free(RSGL_font.fonts[i].f);
 
-        int i;
+        free(RSGL_font.fonts);
+        #endif
+
+        #ifndef GRAPHICS_API_OPENGL_11
+        rglClose();
+        #endif
+        
         for (i = 0; i < RSGL_images_len; i++)
             glDeleteTextures(1, &RSGL_images[i].tex);
     }
@@ -607,35 +807,59 @@ RSGL_GRAPHICS_CONTEXT
 
 
 void RSGL_initGraphics(RSGL_area r, void* loader) {
-    rlLoadExtensions(loader);
-    rlglInit(r.w, r.h);
-    rlEnableDepthTest();
+    #ifndef GRAPHICS_API_OPENGL_11
+    rglInit(r.w, r.h, loader);
+
+    // Init state: Blending mode
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      // Color blending function (how colors are mixed)
+    glEnable(GL_BLEND);                                     // Enable color blending (required to work with transparencies)
+
+    glCullFace(GL_BACK);                                    // Cull the back face (default)
+    glFrontFace(GL_CCW);                                    // Front face are defined counter clockwise (default)
+    glEnable(GL_CULL_FACE);        
+
+    rglMatrixMode(RGL_PROJECTION);    // Switch to projection matrix
+    rglPushMatrix();                 // Save previous matrix, which contains the settings for the 2d ortho projection
+    rglLoadIdentity();               // Reset current matrix (projection)
+    #endif
 
     RSGL_args.currentRect = (RSGL_rect){0, 0, r.w, r.h};
 
     #ifndef RSGL_NO_TEXT
-    RSGL_fonsContext = glfonsCreate(500, 500, 1);
+    RFont_init(r.w, r.h);
     #endif
 }
 
 void RSGL_graphics_clear(RSGL_color color) {
-    rlClearScreenBuffers();
-    rlDrawRenderBatchActive();
-    
-    rlClearColor(color.r, color.g, color.b, color.a);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+    rglRenderBatch();
 }
 
 void RSGL_graphics_free() {
+    u32 i;
     #ifndef RSGL_NO_TEXT
-    fonsDeleteInternal(RSGL_fonsContext);
-    #endif
-    rlglClose();
+    for (i = 0; i < RSGL_font.len; i++)
+        RFont_font_free(RSGL_font.fonts[i].f);
 
-    if (images != NULL) {
-        int i;
+    free(RSGL_font.fonts);
+    #endif
+
+    #ifndef GRAPHICS_API_OPENGL_11
+    rglClose();
+    #endif
+
+    if (RSGL_images != NULL) {
+        i32 i;
         for (i = 0; i < RSGL_images_len; i++)
-            glDeleteTextures(1, RSGL_images[i]);
-        free(images);
+            glDeleteTextures(1, RSGL_images[i].tex);
+        free(RSGL_images);
     }
 }
 #endif /* RSGL_GRAPHICS_CONTEXT / !RGFW_NO_WINDOW */
@@ -651,13 +875,13 @@ RSGL_draw
 void RSGL_rotate(RSGL_point3D rotate){
     RSGL_args.rotate = rotate;
 }
-void RSGL_setTexture(unsigned int texture) {
+void RSGL_setTexture(u32 texture) {
     RSGL_args.texture = texture;
 }
 void RSGL_setGradient(RSGL_color gradient[], size_t len) {
     RSGL_args.gradient_len = len;
     
-    int i;
+    i32 i;
     for (i = 0; i < RSGL_args.gradient_len; i++)
         RSGL_args.gradient[i] = gradient[i];
 }
@@ -666,28 +890,29 @@ void RSGL_defaultClearArgs() {
 }
 void RSGL_clearArgs() {
     RSGL_args.rotate = (RSGL_point3D){0, 0, 0}; 
-    RSGL_args.texture = 1;
+    RSGL_args.texture = 0;
     RSGL_args.gradient_len = 0;    
 }
 
 void RSGL_drawPoint(RSGL_point p, RSGL_color c) { RSGL_drawRect((RSGL_rect){p.x, p.y, 1, 1}, c); }
+void RSGL_drawPoint3D(RSGL_point3D p, RSGL_color c) { RSGL_drawCube((RSGL_cube){p.x, p.y, p.z, 1, 1, 1}, c); }
+
 void RSGL_drawTriangle(RSGL_triangle t, RSGL_color c) {
-    RSGL_pointF points[] = {{(float)t.p1.x, (float)t.p1.y}, {(float)t.p2.x, (float)t.p2.y}, {(float)t.p2.x, (float)t.p2.y}, {(float)t.p3.x, (float)t.p3.y}};
-    RSGL_pointF texPoints[] = {  
-                {((float)(t.p3.x - t.p1.x)/t.p2.x < 1) ? (float)(t.p3.x - t.p1.x) / t.p2.x : 0, 0.0f}, 
-                {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}
+    RSGL_point3DF points[] = {{(float)t.p1.x, (float)t.p1.y, 0.0f}, {(float)t.p2.x, (float)t.p2.y, 0.0f}, {(float)t.p2.x, (float)t.p2.y}, {(float)t.p3.x, (float)t.p3.y, 0.0f}};
+    RSGL_point3DF texPoints[] = {  
+                {((float)(t.p3.x - t.p1.x)/t.p2.x < 1) ? (float)(t.p3.x - t.p1.x) / t.p2.x : 0, 0.0f, 0.0f}, 
+                {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}
     };
     
     RSGL_rect r = {t.p2.x, t.p3.y, abs(t.p2.x - t.p1.x), abs(t.p2.y - t.p3.y)};
 
-    RSGL_BASIC_DRAW(RL_QUADS, (RSGL_pointF*)points, (RSGL_pointF*)texPoints, r, c, sizeof(points)/sizeof(RSGL_point));
+    RSGL_BASIC_DRAW(RGL_QUADS, (RSGL_point3DF*)points, (RSGL_point3DF*)texPoints, r, c, 4);
 }
 
 void RSGL_drawRect(RSGL_rect r, RSGL_color c) {
-    RSGL_pointF points[] = {{r.x, r.y}, {r.x, r.y + r.h}, {r.x + r.w, r.y + r.h}, {r.x + r.w, r.y}};
-    RSGL_pointF texPoints[] = {{0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-
-    RSGL_BASIC_DRAW(RL_QUADS, (RSGL_pointF*)points, (RSGL_pointF*)texPoints, r, c, sizeof(points)/sizeof(RSGL_point));
+    RSGL_point3DF points[] = {{r.x, r.y, 0.0f}, {r.x, r.y + r.h, 0.0f}, {r.x + r.w, r.y + r.h, 0.0f}, {r.x + r.w, r.y, 0.0f}};
+    RSGL_point3DF texPoints[] = {{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}};
+    RSGL_BASIC_DRAW(RGL_QUADS, (RSGL_point3DF*)points, (RSGL_point3DF*)texPoints, r, c, 4);
 }
 
 void RSGL_drawRoundRect(RSGL_rect r, RSGL_point rounding, RSGL_color c) {
@@ -700,21 +925,18 @@ void RSGL_drawRoundRect(RSGL_rect r, RSGL_point rounding, RSGL_color c) {
     RSGL_drawArc((RSGL_rect) {r.x + 1, r.y  + (r.h - rounding.y) - 1,  rounding.x, rounding.y + 2}, (RSGL_point){270, 360}, c);
 }
 
-#define rlColor4ubX(x) if (RSGL_args.gradient_len >= 1) rlColor4ub(RSGL_args.gradient[x].r, RSGL_args.gradient[x].g, RSGL_args.gradient[x].b, RSGL_args.gradient[x].a);
+#define rglColor4ubX(x) if (RSGL_args.gradient_len >= 1) rglColor4ub(RSGL_args.gradient[x].r, RSGL_args.gradient[x].g, RSGL_args.gradient[x].b, RSGL_args.gradient[x].a);
 
-void RSGL_drawPolygonPro(RSGL_rect o, unsigned int sides, RSGL_point arc, RSGL_color c) {
+void RSGL_drawPolygonPro(RSGL_rect o, u32 sides, RSGL_point arc, RSGL_color c) {
     o = (RSGL_rect){o.x + (o.w / 2), o.y + (o.h / 2), o.w / 2, o.h / 2};
     float centralAngle = 0;
 
-    static RSGL_pointF points[360 * 4];
-    static RSGL_pointF texPoints[360 * 4];
-
-    int x = 0, y;
+    i32 x = 0;
     
-    rlSetTexture(RSGL_args.texture);
+    rglSetTexture(RSGL_args.texture);
 
     glPrerequisites(o, c);
-    rlBegin(RSGL_args.texture == 1 ? RL_TRIANGLES : RL_QUADS);
+    rglBegin(RSGL_args.texture == 1 ? RGL_TRIANGLES : RGL_QUADS);
     for (x = 0; (x / 3) < arc.y; x += 3) {
 
         if ((x / 3) < arc.x) { 
@@ -727,36 +949,36 @@ void RSGL_drawPolygonPro(RSGL_rect o, unsigned int sides, RSGL_point arc, RSGL_c
         float tx = (float)cos(rad) * 0.5 + 0.5;
         float ty = (float)sin(rad) * 0.5 + 0.5;
 
-        rlTexCoord2f(0.5f, 0.5f);
+        rglTexCoord2f(0.5f, 0.5f);
 
-        rlVertex2f(o.x, o.y);
+        rglVertex2f(o.x, o.y);
 
-        rlTexCoord2f(ty, 0);
+        rglTexCoord2f(ty, 0);
     
-        rlColor4ubX(0);
-        rlVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
+        rglColor4ubX(0);
+        rglVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
 
         if (RSGL_args.texture != 1) {
-            rlTexCoord2f(ty, tx);
-            rlColor4ubX(0);
+            rglTexCoord2f(ty, tx);
+            rglColor4ubX(0);
 
-            rlVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
+            rglVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
         }
 
         centralAngle += 360.0f/(float)sides;
 
-        rlTexCoord2f(ty, tx);
+        rglTexCoord2f(ty, tx);
 
-        rlColor4ubX(1);
-        rlVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
+        rglColor4ubX(1);
+        rglVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
     }
-    rlEnd();
-    rlPopMatrix();
+    rglEnd();
+    rglPopMatrix();
 
     if (RSGL_argsClear) RSGL_clearArgs();
 }
 
-void RSGL_drawPolygon(RSGL_rect o, unsigned int sides, RSGL_color c) { RSGL_drawPolygonPro(o, sides, (RSGL_point){0, (int)sides}, c); }
+void RSGL_drawPolygon(RSGL_rect o, u32 sides, RSGL_color c) { RSGL_drawPolygonPro(o, sides, (RSGL_point){0, (int)sides}, c); }
 
 void RSGL_drawArc(RSGL_rect o, RSGL_point arc, RSGL_color color) {  RSGL_drawPolygonPro(o, 360, arc, color); }
 void RSGL_drawCircle(RSGL_circle c, RSGL_color color) {  RSGL_drawPolygonPro((RSGL_rect){c.x, c.y, c.d, c.d}, 360, (RSGL_point){0, 360}, color); }
@@ -766,34 +988,34 @@ void RSGL_drawOval(RSGL_rect o, RSGL_color c) { RSGL_drawPolygonPro(o, 360, (RSG
 outlines
 */
 
-void RSGL_drawLine(RSGL_point p1, RSGL_point p2, unsigned int thickness, RSGL_color c) {
-    rlLineWidth(thickness);
-    RSGL_pointF points[] = {{p1.x, p1.y}, {p2.x, p2.y}};
-    RSGL_pointF texPoints[] = {{0, 0}, {0, 0}};
+void RSGL_drawLine(RSGL_point p1, RSGL_point p2, u32 thickness, RSGL_color c) {
+    rglLineWidth(thickness);
+    RSGL_point3DF points[] = {{p1.x, p1.y, 0.0f}, {p2.x, p2.y, 0.0f}};
+    RSGL_point3DF texPoints[] = {{0, 0, 0.0f}, {0, 0, 0.0f}};
 
     RSGL_rect r = {p1.x, p1.y, (p2.x - p1.x), (p2.y - p1.y)};
 
-    RSGL_BASIC_DRAW(RL_LINES, (RSGL_pointF*)points, (RSGL_pointF*)texPoints, r, c, sizeof(points)/sizeof(RSGL_point));
-    rlLineWidth(1);
+    RSGL_BASIC_DRAW(RGL_LINES, (RSGL_point3DF*)points, (RSGL_point3DF*)texPoints, r, c, 2);
+    rglLineWidth(1);
 }
 
-void RSGL_drawTriangleOutline(RSGL_triangle t, unsigned int thickness, RSGL_color c) {
-    rlLineWidth(thickness);
-    RSGL_pointF points[] = {{t.p3.x, t.p3.y}, {t.p1.x, t.p1.y}, {t.p1.x, t.p1.y}, {t.p2.x, t.p2.y}, {t.p2.x, t.p2.y}, {t.p3.x, t.p3.y}};
-    RSGL_pointF texPoints[] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+void RSGL_drawTriangleOutline(RSGL_triangle t, u32 thickness, RSGL_color c) {
+    rglLineWidth(thickness);
+    RSGL_point3DF points[] = {{t.p3.x, t.p3.y, 0.0f}, {t.p1.x, t.p1.y, 0.0f}, {t.p1.x, t.p1.y, 0.0f}, {t.p2.x, t.p2.y, 0.0f}, {t.p2.x, t.p2.y, 0.0f}, {t.p3.x, t.p3.y, 0.0f}};
+    RSGL_point3DF texPoints[] = {{0, 0, 0.0f}, {0, 0, 0.0f}, {0, 0, 0.0f}, {0, 0, 0.0f}, {0, 0, 0.0f}, {0, 0, 0.0f}};
 
     RSGL_rect r = {t.p2.x, t.p3.y, abs(t.p2.x - t.p1.x), abs(t.p2.y - t.p3.y)};
 
-    RSGL_BASIC_DRAW(RL_LINES, (RSGL_pointF*)points, (RSGL_pointF*)texPoints, r, c, sizeof(points)/sizeof(RSGL_point));
-    rlLineWidth(1);
+    RSGL_BASIC_DRAW(RGL_LINES, (RSGL_point3DF*)points, (RSGL_point3DF*)texPoints, r, c, 6);
+    rglLineWidth(1);
 }
-void RSGL_drawRectOutline(RSGL_rect r, unsigned int thickness, RSGL_color c) {
+void RSGL_drawRectOutline(RSGL_rect r, u32 thickness, RSGL_color c) {
     RSGL_drawLine((RSGL_point){r.x, r.y}, (RSGL_point){r.x + r.w, r.y}, thickness, c);
     RSGL_drawLine((RSGL_point){r.x, r.y}, (RSGL_point){r.x, r.y + r.h}, thickness, c);
     RSGL_drawLine((RSGL_point){r.x, r.y + r.h}, (RSGL_point){r.x + r.w, r.y + r.h}, thickness, c);
     RSGL_drawLine((RSGL_point){r.x + r.w, r.y}, (RSGL_point){r.x + r.w, r.y + r.h}, thickness, c);
 }
-void RSGL_drawRoundRectOutline(RSGL_rect r, RSGL_point rounding, unsigned int thickness, RSGL_color c) {
+void RSGL_drawRoundRectOutline(RSGL_rect r, RSGL_point rounding, u32 thickness, RSGL_color c) {
     RSGL_drawRect((RSGL_rect) {r.x + (rounding.x/2), r.y, r.w - rounding.x, (int)(thickness + !thickness)}, c);
     RSGL_drawRect((RSGL_rect) {r.x + (rounding.x/2), r.y + r.h, r.w - rounding.x, (int)(thickness + !thickness)}, c);    
     RSGL_drawRect((RSGL_rect) {r.x, r.y + (rounding.y/2), (int)(thickness + !thickness),  r.h - rounding.y}, c);
@@ -805,53 +1027,152 @@ void RSGL_drawRoundRectOutline(RSGL_rect r, RSGL_point rounding, unsigned int th
     RSGL_drawArcOutline((RSGL_rect) {r.x + 1, r.y  + (r.h - rounding.y) - 1,  rounding.x, rounding.y + 2}, (RSGL_point){270, 360}, thickness, c);
 }
 
-void RSGL_drawPolygonOutlinePro(RSGL_rect o, unsigned int sides, RSGL_point arc, RSGL_color c) {
+void RSGL_drawPolygonOutlinePro(RSGL_rect o, u32 sides, RSGL_point arc, RSGL_color c) {
     o = (RSGL_rect){o.x + (o.w / 2), o.y + (o.h / 2), o.w / 2, o.h / 2};
     float centralAngle = 0;
 
     glPrerequisites(o, c);
-    rlBegin(RL_LINES);
-        int i;
+    rglBegin(RGL_LINES);
+        i32 i;
         for (i = 0; i < arc.y; i++) {
-            rlColor4ub(c.r, c.g, c.b, c.a);
+            rglColor4ub(c.r, c.g, c.b, c.a);
 
             if (i < arc.x ) {
                 centralAngle += 360.0f/(float)sides;
                 continue;
             }
 
-            rlVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.w);
+            rglVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.w);
             centralAngle += 360.0f/(float)sides;
-            rlVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
+            rglVertex2f(o.x + sinf(DEG2RAD * centralAngle) * o.w, o.y + cosf(DEG2RAD * centralAngle) * o.h);
         }
-    rlEnd();
-    rlPopMatrix();
+    rglEnd();
+    rglPopMatrix();
 }
 
-void RSGL_drawPolygonOutline(RSGL_rect o, unsigned int sides, unsigned int thickness, RSGL_color c) {
-    rlLineWidth(thickness);
+void RSGL_drawPolygonOutline(RSGL_rect o, u32 sides, u32 thickness, RSGL_color c) {
+    rglLineWidth(thickness);
     RSGL_drawPolygonOutlinePro(o, sides, (RSGL_point){0, (int)sides}, c);
 }
-void RSGL_drawArcOutline(RSGL_rect o, RSGL_point arc, unsigned int thickness, RSGL_color color) {
-    rlLineWidth(thickness);
+void RSGL_drawArcOutline(RSGL_rect o, RSGL_point arc, u32 thickness, RSGL_color color) {
+    rglLineWidth(thickness);
     RSGL_drawPolygonOutlinePro(o, 360, arc, color);
 }
-void RSGL_drawCircleOutline(RSGL_circle c, unsigned int thickness, RSGL_color color) {
-    rlLineWidth(thickness);
+void RSGL_drawCircleOutline(RSGL_circle c, u32 thickness, RSGL_color color) {
+    rglLineWidth(thickness);
     RSGL_drawPolygonOutlinePro((RSGL_rect){c.x, c.y, c.d, c.d}, 360, (RSGL_point){0, 360}, color);
 }
-void RSGL_drawOvalOutline(RSGL_rect o, unsigned int thickness, RSGL_color c) {
-    rlLineWidth(thickness);
+void RSGL_drawOvalOutline(RSGL_rect o, u32 thickness, RSGL_color c) {
+    rglLineWidth(thickness);
     RSGL_drawPolygonOutlinePro(o, 360, (RSGL_point){0, 360}, c);
 }
 
-/* textures / images */
-unsigned int RSGL_createTexture(unsigned char* bitmap, RSGL_area memsize, unsigned char channels) {
-    return rlLoadTexture(bitmap, memsize.w, memsize.h, channels);
+/* 3D shaoe drawing */
+void RSGL_drawCube(RSGL_cube r, RSGL_color color) {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+
+    rglPushMatrix();
+        // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
+        rglTranslatef(r.x, r.y, r.z);
+        //rlRotatef(45, 0, 1, 0);
+        //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
+
+        rglBegin(RGL_TRIANGLES);
+            rglColor4ub(color.r, color.g, color.b, color.a);
+
+            // Front face
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Left
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Right
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Right
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Right
+
+            // Back face
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Left
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Left
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Right
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Left
+
+            // Top face
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Left
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z + r.l / 2);  // Bottom Left
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z + r.l / 2);  // Bottom Right
+
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Right
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Left
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z + r.l / 2);  // Bottom Right
+
+            // Bottom face
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z - r.l / 2);  // Top Left
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Right
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Left
+
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z - r.l / 2);  // Top Right
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Right
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z - r.l / 2);  // Top Left
+
+            // Right face
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Right
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Left
+            rglVertex3f(x + r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+            rglVertex3f(x + r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+
+            // Left face
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z - r.l / 2);  // Top Right
+
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z + r.l / 2);  // Bottom Left
+            rglVertex3f(x - r.w / 2, y + r.h / 2, z + r.l / 2);  // Top Left
+            rglVertex3f(x - r.w / 2, y - r.h / 2, z - r.l / 2);  // Bottom Right
+        rglEnd();
+    rglPopMatrix();
+
+    /*
+
+    // Front face  (z = 1.0f)
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+
+    // Back face (z = -1.0f)
+    glVertex3f(1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, -1.0f);
+
+    // Left face (x = -1.0f)
+    glVertex3f(-1.0f, 1.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, -1.0f);I
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+
+    // Right face (x = 1.0f)
+    glVertex3f(1.0f, 1.0f, -1.0f);
+    glVertex3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, -1.0f);
+        RSGL_BASIC_DRAW(RL_QUADS, (RSGL_point3DF*)points, (RSGL_point3DF*)texPoints, RSGL_RECT(r.x, r.y, r.w, r.h), c, sizeof(points)/sizeof(RSGL_point));*/
 }
 
-unsigned int s(const char* image, RSGL_rect r) {
-    unsigned int texture = 0;
+/* textures / images */
+u32 RSGL_createTexture(u8* bitmap, RSGL_area memsize, u8 channels) {
+    return rglCreateTexture(bitmap, memsize.w, memsize.h, channels);
+}
+
+u32 RSGL_drawImage(const char* image, RSGL_rect r) {
+    u32 texture = 0;
 
     #ifndef RSGL_NO_SAVE_IMAGE
     static size_t images_comp = 0;
@@ -862,7 +1183,7 @@ unsigned int s(const char* image, RSGL_rect r) {
     }
 
     if (RSGL_images_len) {
-        int i; 
+        i32 i; 
         for (i = 0; i < RSGL_images_len; i++) {
             if (RSGL_cstr_equal(image, RSGL_images[i].img)) {
                 texture = RSGL_images[i].tex;
@@ -873,8 +1194,8 @@ unsigned int s(const char* image, RSGL_rect r) {
     #endif /* RSGL_NO_SAVE_IMAGE */
 
     if (!texture) {
-        int x, y, c;
-        unsigned char* bitmap = stbi_load(image, &x, &y, &c, 0);
+        i32 x, y, c;
+        u8* bitmap = stbi_load(image, &x, &y, &c, 0);
 
         texture = RSGL_createTexture(bitmap, (RSGL_area){x, y}, c);
 
@@ -890,7 +1211,7 @@ unsigned int s(const char* image, RSGL_rect r) {
     }
 
     if (r.w || r.h) {
-        unsigned int tex = RSGL_args.texture;
+        u32 tex = RSGL_args.texture;
         RSGL_setTexture(texture);
 
         RSGL_drawRect(r, RSGL_RGB(255, 255, 255));
@@ -902,51 +1223,79 @@ unsigned int s(const char* image, RSGL_rect r) {
 }
 
 #ifndef RSGL_NO_TEXT
-unsigned int RSGL_loadFont(const char* font) {
-    int loaded = fonsGetFontByName(RSGL_fonsContext, font);    
+u32 RSGL_loadFont(const char* font) {
+    u32 i;
+    for (i = 0; i < RSGL_font.len; i++) 
+        if (RSGL_font.fonts[i].name == font)
+            return i;
+    
+    if (RSGL_font.len == RSGL_font.cap) {
+        RSGL_font.cap += RSGL_NEW_FONTS;
 
-    if (loaded == -1)
-        return fonsAddFont(RSGL_fonsContext, font);
-    else 
-        return loaded;
+        RSGL_fontData* nFonts = (RSGL_fontData*)malloc(sizeof(RSGL_fontData) * RSGL_font.cap);
+        memcpy(nFonts, RSGL_font.fonts, sizeof(RSGL_fontData) * RSGL_font.len);
+        free(RSGL_font.fonts);
+
+        RSGL_font.fonts = nFonts;
+    }
+
+
+    RSGL_font.fonts[RSGL_font.len].name = (char*)font; 
+    RSGL_font.fonts[RSGL_font.len].f = RFont_font_init(font);
+    RSGL_font.len++;
+
+    return RSGL_font.len - 1;
 }
 
-void RSGL_drawText(const char* text, unsigned int font, RSGL_circle c, RSGL_color color) {
+void RSGL_setFont(u32 font) {
+    RSGL_font.f = RSGL_font.fonts[font].f;
+}
+
+void RSGL_setRFont(RFont_font* font) {
+    RSGL_font.f = font;
+}
+
+void RSGL_drawText_len(const char* text, size_t len, RSGL_circle c, RSGL_color color) {
+    glEnable(GL_BLEND);
+
     if (text == NULL || text[0] == '\0')
         return;
-    int w = fonsTextWidth(RSGL_fonsContext, font, c.d, text, 0);
+
+    i32 w = RFont_text_width(RSGL_font.f, text, c.d);
 
     glPrerequisites((RSGL_rect) {c.x, c.y + (c.d - (c.d/4)), w, c.d}, color);
   
-    unsigned int fonsColor = glfonsRGBA(color.r, color.b, color.g, color.a);
+    RFont_set_color(color.r / 255.0f, color.b / 255.0f, color.g / 255.0f, color.a / 255.0f);
+    RFont_draw_text_len(RSGL_font.f, text, len, c.x, c.y, c.d, 0.0f);
 
-    fonsDrawText(RSGL_fonsContext, font, c.x, c.y + (c.d - (c.d / 4)), c.d, fonsColor, text);
-    
-    rlPopMatrix();
+    rglPopMatrix();
 }
 
-unsigned int RSGL_textWidth(const char* text, unsigned int font, unsigned int fontSize, size_t textEnd) {
-    return fonsTextWidth(RSGL_fonsContext, font, fontSize, text, textEnd);
+void RSGL_drawText(const char* text, RSGL_circle c, RSGL_color color) {
+    RSGL_drawText_len(text, 0, c, color);
+}
+
+u32 RSGL_textWidth(const char* text, u32 fontSize, size_t textEnd) {
+    return RFont_text_width_len(RSGL_font.f, text, fontSize, textEnd);
 }
 #endif /* RSGL_NO_TEXT */
 
 void glPrerequisites(RSGL_rect r, RSGL_color c) {
-    rlColor4ub(c.r, c.g, c.b, c.a);
-    rlMatrixMode(RL_PROJECTION);
-    rlLoadIdentity();
-    rlPushMatrix();
+    rglColor4ub(c.r, c.g, c.b, c.a);
+    rglMatrixMode(RGL_PROJECTION);
+    rglLoadIdentity();
+    rglPushMatrix();
 
-    rlOrtho(0, RSGL_args.currentRect.w, RSGL_args.currentRect.h, 0, -RSGL_args.currentRect.w, RSGL_args.currentRect.w);
+    rglOrtho(0, RSGL_args.currentRect.w, RSGL_args.currentRect.h, 0, -RSGL_args.currentRect.w, RSGL_args.currentRect.w);
     
-    rlTranslatef((r.x + (r.w / 2)), (r.x + (r.h / 2)), 0);
+    rglMatrixMode(RGL_MODELVIEW);
+    rglTranslatef((r.x + (r.w / 2)), (r.x + (r.h / 2)), 0);
         
-    rlRotatef(RSGL_args.rotate.x,  0, 0, 1);
-    rlRotatef(RSGL_args.rotate.y, 0, 1, 0);
-    rlRotatef(RSGL_args.rotate.z, 1, 0, 0);
+    rglRotatef(RSGL_args.rotate.x,  0, 0, 1);
+    rglRotatef(RSGL_args.rotate.y, 0, 1, 0);
+    rglRotatef(RSGL_args.rotate.z, 1, 0, 0);
 
-    rlTranslatef(-(r.x + (r.w / 2)), -(r.x + (r.h / 2)), 0);
-
-    rlMatrixMode(RL_MODELVIEW);
+    rglTranslatef(-(r.x + (r.w / 2)), -(r.x + (r.h / 2)), 0);
 }
 
 /*
@@ -983,7 +1332,7 @@ void RSGL_button_update(RSGL_button* b, RGFW_Event e) {
 
 void RSGL_ratio_button_update(RSGL_button* bArray, size_t len, RGFW_Event e) { 
     RSGL_button* b;
-    int i;
+    i32 i;
 
     for (b = bArray; (b - bArray ) < len; b++) {
         RSGL_button_update(b, e);
@@ -1017,12 +1366,12 @@ void RSGL_slider_update(RSGL_button* b, RSGL_rect limits, RGFW_Event e) {
 
 #if !defined(RSGL_NO_TEXT) && defined(RGFW_keyPressed)
 
-RSGL_textbox* RSGL_createTextbox(const char* text, unsigned int textSize, RSGL_rect box, RSGL_point cursor) {
-    unsigned char* t;
-    for (t = (unsigned char*)text; *t; t++);
+RSGL_textbox* RSGL_createTextbox(const char* text, u32 textSize, RSGL_rect box, RSGL_point cursor) {
+    u8* t;
+    for (t = (u8*)text; *t; t++);
 
     RSGL_textbox* tb = (RSGL_textbox*)malloc(sizeof(RSGL_textbox));
-    tb->capacity = tb->len = t - (unsigned char*)text;
+    tb->capacity = tb->len = t - (u8*)text;
 
     if (tb->len)
         tb->text = strdup(text);
@@ -1122,11 +1471,12 @@ void RSGL_textbox_update(RSGL_textbox* textBox, RGFW_Event e) {
         default: break;
     }
 }
-void RSGL_textbox_draw(RSGL_textbox* textBox,   int font, RSGL_color c, RSGL_color cursorColor) {
-    RSGL_drawText(textBox->text, font, (RSGL_circle){textBox->r.x, textBox->r.y, textBox->textSize}, c);
+void RSGL_textbox_draw(RSGL_textbox* textBox,  i32 font, RSGL_color c, RSGL_color cursorColor) {
+    RSGL_setFont(font);
+    RSGL_drawText(textBox->text, (RSGL_circle){textBox->r.x, textBox->r.y, textBox->textSize}, c);
 
     RSGL_point cursor = {
-            textBox->r.x + (textBox->cursor.x ? RSGL_textWidth(textBox->text, font, textBox->textSize, textBox->cursor.x) : 0), 
+            textBox->r.x + (textBox->cursor.x ? RSGL_textWidth(textBox->text, textBox->textSize, textBox->cursor.x) : 0), 
             textBox->r.y + (textBox->cursor.y) * textBox->textSize
         };
 
@@ -1202,33 +1552,33 @@ void RSGL_audio_pause(RSGL_audio a) {
     ma_device_stop(&a.data->device);
 }
 void RSGL_audio_stop(RSGL_audio a) {
-    pause();
+    ma_device_stop(&a.data->device);
     ma_device_uninit(&a.data->device);
     ma_decoder_uninit(&a.data->decoder);
 }
 
 /* write audio info */
-void RSGL_audio_setVolume(RSGL_audio a, unsigned int vol) {
+void RSGL_audio_setVolume(RSGL_audio a, u32 vol) {
     a.data->result = ma_device_set_master_volume(&a.data->device, vol / 100.0f);
 }
-void RSGL_audio_seek(RSGL_audio a, unsigned int position) {
+void RSGL_audio_seek(RSGL_audio a, u32 position) {
     a.data->result = ma_decoder_seek_to_pcm_frame(&a.data->decoder, position * 44100);
 }
 
 /* get audio info */
-unsigned int RSGL_audio_len(RSGL_audio a) {
-    long long unsigned int len;
+u32 RSGL_audio_len(RSGL_audio a) {
+    ma_uint64 len;
     ma_decoder_get_length_in_pcm_frames(&a.data->decoder, &len);
     return len / 44100;
 }
 
-unsigned int RSGL_audio_volume(RSGL_audio a) {
+u32 RSGL_audio_volume(RSGL_audio a) {
     float volume;
     a.data->result = ma_device_get_master_volume(&a.data->device, &volume);
     return volume * 100;
 }
-unsigned int RSGL_audio_position(RSGL_audio a) {
-    long long unsigned int pos;
+u32 RSGL_audio_position(RSGL_audio a) {
+    ma_uint64 pos;
     ma_decoder_get_cursor_in_pcm_frames(&a.data->decoder, &pos);
     return pos / 44100;
 }
@@ -1259,8 +1609,8 @@ RSGL_Other
 */
 
 /* timers */
-bool RSGL_wait(unsigned int miliseconds) {
-    static int start_time = -1, miliLimit = 0;
+bool RSGL_wait(u32 miliseconds) {
+    static i32 start_time = -1, miliLimit = 0;
 
     if (start_time == -1)
         start_time = time(0);
@@ -1268,7 +1618,7 @@ bool RSGL_wait(unsigned int miliseconds) {
     if (miliseconds > miliLimit)
         miliLimit = miliseconds;
 
-    int passed = time(0) - start_time;
+    i32 passed = time(0) - start_time;
 
     if (passed > miliLimit)
         start_time = time(0);
@@ -1276,8 +1626,8 @@ bool RSGL_wait(unsigned int miliseconds) {
     return !(passed % miliseconds) && passed;
 }
 
-bool RSGL_wait_frames(unsigned int frames) {
-    static int i = 0, frameLimit = 0;
+bool RSGL_wait_frames(u32 frames) {
+    static i32 i = 0, frameLimit = 0;
     
     if (frames > frameLimit)
         frameLimit = frames;
@@ -1290,7 +1640,8 @@ bool RSGL_wait_frames(unsigned int frames) {
     return !(i % frames);
 }
 
-char RSGL_keyCodeToKeyChar(unsigned int keycode) {
+#ifndef RSGL_NO_WINDOW
+char RSGL_keyCodeToKeyChar(u32 keycode) {
     switch (keycode) {  
         case RGFW_Backtick: return '`';
         case RGFW_Minus: return '-';
@@ -1323,6 +1674,7 @@ char RSGL_keyCodeToKeyChar(unsigned int keycode) {
         default: return '\0';
     }
 }
+#endif
 
 /* collision detection */
 bool RSGL_circleCollidePoint(RSGL_circle c, RSGL_point p) { return RSGL_circleCollideRect(c, (RSGL_rect) {p.x, p.y, 1, 1}); }
