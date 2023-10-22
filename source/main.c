@@ -42,8 +42,9 @@ int main() {
         addTileAtRandom(tiles,  ((rand() % 10) == 3) ? 4 : 2);
 
     int font =  RSGL_loadFont("SansPosterBold.ttf");
+    RSGL_setFont(font);
 
-    RSGL_button b = {"", RSGL_RECT(3, 3, RSGL_textWidth("Reset", font, 15, 5) * 2, 15)};
+    RSGL_button b = {"", RSGL_RECT(3, 3, RSGL_textWidth("Reset", 15, 5) * 2, 15)};
 
     while (true) {
         while (RSGL_window_checkEvent(window)) {
@@ -92,11 +93,11 @@ int main() {
                 int textSize = (tileR.w / 3);
                 RSGL_circle textC = {tileR.x + ((tileR.w + textSize) / 3.25) - (len * tileR.w / 15), tileR.y + ((tileR.w + textSize)/ 3.25), tileR.w / 3};
 
-                RSGL_drawText(textStr, font, textC, RSGL_RGB(255, 255, 255));
+                RSGL_drawText(textStr, textC, RSGL_RGB(255, 255, 255));
             }
         
         RSGL_drawRoundRect(b.r, RSGL_POINT(15, 15), RSGL_RGB(255, 0, 0));
-        RSGL_drawText("Reset", font, RSGL_CIRCLE(5, 3, 15), RSGL_RGB(255, 255, 255));
+        RSGL_drawText("Reset", RSGL_CIRCLE(5, 3, 15), RSGL_RGB(255, 255, 255));
 
         RSGL_window_clear(window, RSGL_RGB(200, 200, 200));
     }
